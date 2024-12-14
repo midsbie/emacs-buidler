@@ -9,10 +9,17 @@ fatal() {
 }
 
 # Function to detect if the system has a GUI
+# Returns 0 if the system has a GUI, 1 otherwise
 has_gui() {
+  # We consider the system to have a GUI if the DISPLAY or WAYLAND_DISPLAY environment variables are
+  # set
   if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
     return 0
-  elif dpkg -l | grep -E '^ii\s+(xorg|xserver|wayland|gnome|kde|xfce|lxde|mate)' >/dev/null; then
+  fi
+
+  # We consider the system to have a GUI if at least 10 GUI packages are installed
+  count=$(dpkg -l | grep -E '^ii\s+(xorg|xserver|wayland|gnome|kde|xfce|lxde|mate|plasma)' | wc -l)
+  if [ "$count" -ge 10 ]; then
     return 0
   fi
 
